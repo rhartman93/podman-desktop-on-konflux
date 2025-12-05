@@ -24,14 +24,17 @@ RUN pnpm install --frozen-lockfile
 
 # Build the application with increased heap size
 ENV NODE_OPTIONS="--max-old-space-size=4096"
-RUN pnpm run build
+RUN pnpm compile:current
 
 # Stage 2: Package build artifacts
 FROM registry.access.redhat.com/ubi10/ubi-minimal:latest
 
-# Copy all build outputs from podman-desktop packages
+# Copy sources from podman-desktop packages
 COPY --from=builder /workspace/podman-desktop/packages /app/packages
 COPY --from=builder /workspace/podman-desktop/extensions /app/extensions
+
+# Copy build output
+COPY --from=builder /workspace/podman-desktop/dist /app/dist
 
 # Set metadata
 LABEL name="podman-desktop" \
